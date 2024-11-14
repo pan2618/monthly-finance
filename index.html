@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>理財記錄</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .form-section {
+            margin-bottom: 20px;
+        }
+        .form-section input {
+            padding: 8px;
+            margin-right: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>每月理財記錄</h1>
+
+    <!-- 表單輸入區域 -->
+    <div class="form-section">
+        <input type="number" id="income" placeholder="收入" />
+        <input type="number" id="expenses" placeholder="支出" />
+        <input type="number" id="savings" placeholder="儲蓄" />
+        <button class="btn" onclick="addRecord()">新增記錄</button>
+    </div>
+
+    <!-- 表格顯示區域 -->
+    <table id="financeTable">
+        <thead>
+            <tr>
+                <th>月份</th>
+                <th>收入</th>
+                <th>支出</th>
+                <th>儲蓄</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 每月記錄將在這裡顯示 -->
+        </tbody>
+    </table>
+
+    <!-- 匯出PDF按鈕 -->
+    <button class="btn" onclick="generatePDF()">匯出PDF</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+    const { jsPDF } = window.jspdf;
+    let records = [];
+    let currentMonth = new Date().toLocaleString('default', { month: 'long' });
+
+    // 新增記錄
+    function addRecord() {
+        const income = document.getElementById('income').value;
+        const expenses = document.getElementById('expenses').value;
+        const savings = document.getElementById('savings').value;
+
+        if (income && expenses && savings) {
+            records.push({
+                month: currentMonth,
+                income: income,
+                expenses: expenses,
+                savings: savings
+            });
+            updateTable();
+            clearInputFields();
+        } else {
+            alert('請填寫所有欄位');
+        }
+    }
+
+    // 更新表格顯示
+    function updateTable() {
+        const tableBody = document.getElementById('financeTable').getElementsByTagName('tbody')[0];
+        tableBody.innerHTML = '';
+
+        records.forEach(record => {
+            const row = tableBody.insertRow();
+            row.insertCell(0).innerText = record.month;
+            row.insertCell(1).innerText = record.income;
+            row.insertCell(2).innerText = record.expenses;
+            row.insertCell(3).innerText = record.savings;
+        });
+    }
+
+    // 清除輸入欄位
+    function clearInputFields() {
+        document.getElementById('income').value = '';
+        document.getElementById('expenses').value = '';
+        document.getElementById('savings').value = '';
+    }
+
+    // 匯出PDF
+    function generatePDF() {
+        const doc = new jsPDF();
+
+        doc.text('每月理財記錄', 20, 20);
+        let yPosition = 30;
+
+        records.forEach(record => {
+            doc.text(`月份: ${record.month}`, 20, yPosition);
+            doc.text(`收入: ${record.income}`, 20, yPosition + 10);
+            doc.text(`支出: ${record.expenses}`, 20, yPosition + 20);
+            doc.text(`儲蓄: ${record.savings}`, 20, yPosition + 30);
+            yPosition += 40;
+        });
+
+        doc.save('financial_report.pdf');
+    }
+</script>
+
+</body>
+</html>
